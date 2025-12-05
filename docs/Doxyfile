@@ -1,0 +1,7 @@
+PROJECT_NAME      = "PSO"
+OUTPUT_DIRECTORY  = docs
+GENERATE_LATEX    = NO
+GENERATE_XML      = NO
+GENERATE_HTML     = YES
+INPUT             = ./
+RECURSIVE         = YES
