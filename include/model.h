@@ -29,7 +29,7 @@ private:
 public:
     Model();
     Model(const char*& input);
-    ~Model();
+    virtual ~Model();
     
     virtual Model* clone();
     virtual double fx_function_solve(int x_size, char* x, bool display);

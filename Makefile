@@ -1,47 +1,57 @@
-# Define the symbols we might want to change:
+# Compiler and flags
+CXX := g++
+CXXFLAGS := -std=c++11 -Wall -Wextra -g -I./include
+LDFLAGS :=
 
-CXX	:= c++
-CXXFLAGS := -g -std=c++14 -o3
+# Directories
+SRC_DIR := src
+TEST_DIR := test
+BUILD_DIR := build
+BIN_DIR := bin
 
-OBJECTS	:= build/function.o build/test_1.o
-OBJECTS2 := build/function.o build/model.o build/ss_model.o build/test_2.o
-OBJECTS3 := build/function.o build/model.o build/linear_graph.o build/all_model.o build/test_3.o
-OBJECTS_GRAPH := test/test_graph.cpp
+# Source files and object files
+SRCS := $(wildcard $(SRC_DIR)/*.cpp)
+TEST_SRCS := $(TEST_DIR)/test_main.cpp
+OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))
+TEST_OBJS := $(patsubst $(TEST_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(TEST_SRCS))
 
-all: build/test_3
+# Executables
+EXEC := $(BIN_DIR)/main
+TEST_EXEC := $(BIN_DIR)/unittest
 
-build/test_1: $(OBJECTS)
-	$(CXX) $(OBJECTS) -o build/test_1
+# Default target
+all: $(EXEC)
 
-build/test_1.o: test/test_1.cpp
-	$(CXX) $(CXXFLAGS) -I./include -c  test/test_1.cpp -o build/test_1.o
+# Main executable
+$(EXEC): $(OBJS) $(BUILD_DIR)/main.o
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
-build/test_2: $(OBJECTS2)
-	$(CXX) $(OBJECTS2) -o build/test_2
+# Test executable
+$(TEST_EXEC): $(OBJS) $(TEST_OBJS)
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
-build/test_2.o: test/test_2.cpp
-	$(CXX) $(CXXFLAGS) -I./include -c  test/test_2.cpp -o build/test_2.o
+# Rule to build object files
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-build/test_3: $(OBJECTS3)
-	$(CXX) $(OBJECTS3) -o build/test_3
+$(BUILD_DIR)/%.o: $(TEST_DIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-build/test_3.o: test/test_3.cpp
-	$(CXX) $(CXXFLAGS) -I./include -c  test/test_3.cpp -o build/test_3.o
+# Test target
+test: $(TEST_EXEC)
+	./$(TEST_EXEC)
 
-build/test_graph: $(OBJECTS_GRAPH)
-	$(CXX) $(OBJECTS_GRAPH) -I./include -o build/test_graph $(CXXFLAGS)
+# Memory leak check target
+memcheck: $(TEST_EXEC)
+	valgrind --leak-check=full --show-leak-kinds=all ./$(TEST_EXEC)
 
-build/linear_graph.o: src/linear_graph.cpp
-	$(CXX) $(INCLUDES) -I./include $(CXXFLAGS) -c src/linear_graph.cpp -o build/linear_graph.o
+# Clean target
+clean:
+	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
-build/model.o: src/model.cpp
-	$(CXX) $(INCLUDES) -I./include $(CXXFLAGS) -c src/model.cpp -o build/model.o
-
-build/ss_model.o: src/ss_model.cpp
-	$(CXX) $(INCLUDES) -I./include $(CXXFLAGS) -c src/ss_model.cpp -o build/ss_model.o
-
-build/all_model.o: src/all_model.cpp
-	$(CXX) $(INCLUDES) -I./include $(CXXFLAGS) -c src/all_model.cpp -o build/all_model.o
-
-build/function.o: src/function.cpp
-	$(CXX) $(INCLUDES) -I./include $(CXXFLAGS) -c src/function.cpp -o build/function.o
+# Phony targets
+.PHONY: all test memcheck clean
