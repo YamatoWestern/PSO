@@ -60,6 +60,8 @@ public:
      * @param input The path to the input file.
      */
     Model(const char*& input);
+    virtual ~Model();
+    
 
     /**
      * @brief Destructor.

@@ -1,4 +1,6 @@
 #include "model.h"
+#include <cstdio>
+#include <cstddef>
 
 Model::Model() {
 
@@ -9,6 +11,7 @@ Model::Model(const char*& input) {
 }
 
 Model::~Model() {
+    // dtor
 }
 
 void Model::load_data(const char* file) {
